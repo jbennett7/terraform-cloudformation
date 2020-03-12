@@ -22,15 +22,11 @@ provider "aws" {
 
 data "aws_vpcs" "vpcs" {}
 
-locals {
-  vpc_ids = tolist(data.aws_vpcs.vpcs.ids)
-  vpc_param = tolist(slice([ "VpcId", "VpcId2", "VpcId3", "VpcId4", "VpcId5" ], 0, length(local.vpc_ids)))
-  parameters = merge({"Division" = var.division }, zipmap(local.vpc_param, local.vpc_ids))
-}
-
 resource "aws_cloudformation_stack" "splunk_integration" {
   name = var.stack_name
-  parameters = local.parameters
+  parameters = {
+    "VpcId" = element(aws_vpcs.vpcs, 0)
+  }
   template_body = file("main.yaml")
   capabilities = [
     "CAPABILITY_NAMED_IAM",
