@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create the VPC flow logs for splunk.
+Parameters:
+    VpcId:
+        Type: String
+Resources:
+    SplunkFlowLog:
+        Type: AWS::EC2::FlowLog
+        Properties:
+            LogDestinationType: cloud-watch-logs
+            LogGroupName: /aws/vpc/contino/flowlogs
+            ResourceId: !Ref VpcId
+            ResourceType: VPC
+            TrafficType: ALL
+            DeliverLogsPermissionArn: !GetAtt SplunkFlowLogRole.Arn
+    SplunkFlowLogRole:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: !Join [-, [local-flowlog-delivery-role, !Ref "AWS::Region"]]
+            Path: /
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service:
+                              - vpc-flow-logs.amazonaws.com
+                      Action:
+                          - "sts:AssumeRole"
+    SplunkLogDeliveryPolicy:
+        Type: AWS::IAM::Policy
+        Properties:
+            PolicyName: local-trumpet-flowlog-delivery-policy
+            PolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Effect: Allow
+                      Action:
+                          - "logs:CreateLogGroup"
+                          - "logs:CreateLogStream"
+                          - "logs:PutLogEvents"
+                          - "logs:DescribeLogGroups"
+                          - "logs:DescribeLogStreams"
+                      Resource: "*"
+            Roles:
+                - !Ref SplunkFlowLogRole
+Outputs:
+    FlowLogId:
+        Description: ID of the VPC Flow Log in use.
+        Value: !Ref SplunkFlowLog
+    FlowLogRoleArn:
+        Description: ARN for the FlowLog delivery role.
+        Value: !GetAtt SplunkFlowLogRole.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-FLOWLOG-ARN"

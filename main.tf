@@ -31,7 +31,7 @@ locals {
 resource "aws_cloudformation_stack" "splunk_integration" {
   name = var.stack_name
   parameters = local.parameters
-  template_url = var.template_url
+  template_body = file("main.yaml")
   capabilities = [
     "CAPABILITY_NAMED_IAM",
     "CAPABILITY_AUTO_EXPAND"

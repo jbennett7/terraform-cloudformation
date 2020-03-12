@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Master template to integrate splunk with AWS via Trumpet.
+Parameters:
+    VpcId:
+        Type: String
+        Default: None
+Resources:
+    SplunkVpcLogGroup:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://cf-templates-1mewyk1u4ziy1-us-east-1.s3.amazonaws.com/loggroup.yaml
+    SplunkVpcFlowLog:
+        Type: AWS::CloudFormation::Stack
+        Condition: VPCPresent
+        Properties:
+            Parameters:
+                VpcId: !Ref VpcId
+            TemplateURL: https://cf-templates-1mewyk1u4ziy1-us-east-1.s3.amazonaws.com/vpc-flow-logs.yaml
+            Tags:
+                - Key: Name
+                  Value: Contino-Integration
+    Trumpet:
+        Type: AWS::CloudFormation::Stack
+        Condition: CorpIndexer
+        Properties:
+            TemplateURL: https://cf-templates-1mewyk1u4ziy1-us-east-1.s3.amazonaws.com/corporate.yaml
+            Tags:
+                - Key: Name
+                  Value: Contino-Integration

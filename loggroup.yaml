@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: LogGroups for Splunk
+Resources:
+    SplunkLogFlowGroup:
+        Type: AWS::Logs::LogGroup
+        Properties:
+            LogGroupName: /aws/vpc/contino/flowlogs
+            RetentionInDays: 365
+Outputs:
+    FlowLogGroup:
+        Description: The Cloudwatch Log group for VPC FlowLogs
+        Value: !Ref SplunkLogFlowGroup
